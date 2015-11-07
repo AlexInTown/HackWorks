@@ -1,0 +1,161 @@
+#include <cmath>
+#include <memory.h>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <stack>
+#include <climits>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <set>
+#include <map>
+#include <list>
+
+using namespace std;
+
+//unordered_map<string, list<int> > questions;
+map<string, list<int> > questions;
+vector<string> questVec;
+vector<string> queryNodes;
+vector<string> prefixes;
+//unordered_map<string, list<string> > childs;
+map<string, list<string> > childs;
+
+typedef list<string>:: iterator ITER;
+int findCount(const string &node, const unordered_set<int> & qset){
+    const list<int> & qs = questions[node];
+    int ret = 0; 
+    for(auto iter = qs.begin(); iter != qs.end(); iter++)
+        if(qset.count(*iter)) ret++;
+    list<string> & chs = childs[node];
+    for(ITER iter = chs.begin(); iter != chs.end(); iter ++)
+        ret+=findCount(*iter, qset);
+    return ret;
+}
+
+struct TreeNode{
+    //TreeNode * childs[52];
+    TreeNode *childs[256];
+    unordered_set<int> questIds;
+    char val;
+    TreeNode(char c){
+        memset(childs, 0, sizeof(childs));
+        val = c;
+    }
+    inline void setNode(char c, TreeNode *node){
+        /*if(c >= 'a' && c < 'z') childs[c-'a'] = node;
+        else if(c >= 'A' && c < 'Z') childs[c-'A'+26] = node;
+        else {perror("invalid char value!"); exit(-1);}*/
+        childs[c] = node;
+    }
+    inline TreeNode * getNode(char c){
+        /*if(c >= 'a' && c < 'z') return childs[c-'a'];
+        else if(c >= 'A' && c < 'Z') return childs[c-'A'+26];
+        else {perror("invalid char value!"); return NULL;}*/
+        return childs[c];
+    }
+    
+};
+void addQuestion(TreeNode *root, int id, int depth){
+    const string &s = questVec[id];
+    TreeNode *node = root,*temp;
+    for(int i = 0; i < s.size() && i < depth; ++i){
+        node->questIds.insert(id);
+        temp = node->getNode(s[i]);
+        if(temp==NULL){
+            temp = new TreeNode(s[i]);
+            node->setNode(s[i], temp);
+        }
+        node = temp;
+    }
+    node->questIds.insert(id);
+}
+int search(TreeNode *root, const string &node, const string &query){
+    int i;
+    TreeNode *cur = root;
+    for(i = 0; i < query.size() && cur; ++i){
+        cur = cur->getNode(query[i]);
+    }
+    if(cur==NULL) return 0;
+    const unordered_set<int> & qset = cur->questIds;
+    /*for(auto iter = qset.begin(); iter != qset.end(); ++iter)
+        cout<<*iter<<" ";
+    cout<<endl;*/
+    return findCount(node, qset);
+}
+
+void parseTree(const string &s){
+    stack<string>  sstack;
+    int i, j;
+    int start;
+    string last;
+    for(i = 0; i < s.size(); ){
+        for(j = i; j < s.size() && s[j]==' '; ++j);
+        start = j;
+        for(; j < s.size() && s[j]!=' '; ++j);
+        const string & str = s.substr(start, j-start);
+        if(str=="("){
+            sstack.push(last);
+        }else if(str==")"){
+            sstack.pop();
+        }else{
+            if(!sstack.empty()){
+                childs[sstack.top()].push_back(str);
+            }
+            last = str;
+        }
+        i = j;
+    }
+}
+void parseQuestion(const string &s){
+    int idx = s.find(":");
+    const string &node = s.substr(0, idx);
+    const string &question = s.substr(idx+2);
+    questVec.push_back(question);
+    questions[node].push_back(questVec.size()-1);
+}
+int main() {
+    int N, M, K;
+    cin>>N;
+    cin.get();
+    string s;
+    getline(cin, s);
+    //cout<<"before parse tree"<<endl;
+    parseTree(s);
+    //cout<<"after parse tree"<<endl;
+
+    cin>>M;
+    cin.get();
+    int i,j;
+    TreeNode *root = new TreeNode('c');
+    for(i = 0; i < M; ++i){
+        getline(cin, s);
+        parseQuestion(s);
+    }
+    //cout<<"after parse questions"<<endl;
+    cin>>K;
+    cin.get();
+    int maxDepth = 0;
+    for(i = 0; i < K; ++i){
+        getline(cin, s);
+        //cout<<s<<endl;
+        int idx = s.find(" ");
+        const string &node = s.substr(0, idx);
+        const string &prefix = s.substr(idx+1);
+        queryNodes.push_back(node);
+        prefixes.push_back(prefix);
+        maxDepth = max(maxDepth, (int)prefix.size());
+
+        cout<<node<<" "<<prefix<<" "<<maxDepth<<" "<<prefix.size()<<endl;
+    }
+    for(i = 0; i < questVec.size(); ++i){
+        addQuestion(root, i, maxDepth);
+    }
+    for(i = 0; i < K; ++i){
+        cout<<search(root, queryNodes[i], prefixes[i])<<endl;
+    }
+    return 0;
+}
+
