@@ -14,35 +14,39 @@ struct Comp{
         return a.end < b.end || a.end == b.end && a.start < b.start;
     }
 };
-Interval intervals[25000];
+Interval intervals[25001];
 int dp[25001];
 int main(){
     scanf("%d%d", &N, &T);
     int i;
-    for(i = 0; i < N; ++i){
+    intervals[0].start = 0;
+    intervals[0].end = 0;
+    for(i = 1; i <= N; ++i){
         scanf("%d%d", &intervals[i].start, &intervals[i].end);
+        dp[i] = 1000000;
     }
-    sort(intervals, intervals + N, Comp());
-    memset(dp, -1, sizeof(dp));
+    sort(intervals, intervals + N + 1, Comp());
+    if(intervals[N].end < T) {
+        printf("-1\n");  // end 还够不着的时候。。
+        return 0;
+    }
     dp[0] = 0;
     Interval temp;
     temp.start = 0;
-    for(i = 0; i < N; ++i){
-        if(i == 0 && intervals[i].start ==1 || i > 0 && intervals[i].start <= intervals[i-1].end+1 && dp[i] >= 0)
-            dp[i+1] = dp[i] + 1;
-        else //if(i > 0 && intervals[i].start > intervals[i-1].end+1 || intervals[i].start > 1)
-            dp[i+1] = -1;
-        temp.end = intervals[i].start;
-        int idx = lower_bound(intervals, intervals+i, temp, Comp()) - intervals;
-        //idx -= 1; idx += 1;
-        if(idx > 0 && dp[idx] !=-1){
-            if (dp[i+1] >= 0)
-                dp[i+1] = min(dp[i+1] , dp[idx] + 1);
+    for(i = 1; i <= N; ++i){
+        //printf("intervals[%d]=(%d, %d)\n", i, intervals[i].start, intervals[i].end);
+        temp.end = intervals[i].start-1; // 假如以6开头，那么最少的end要为5
+        int idx = lower_bound(intervals, intervals + i, temp, Comp()) - intervals; //第一个大于等于5的开始
+        for(int j = idx; j < i; ++j){
+            if (intervals[i].end == intervals[j].end) 
+                dp[i] = min(dp[i], dp[j]);
             else
-                dp[i+1] = dp[idx] + 1;
+                dp[i] = min(dp[i], dp[j]+1);
+            //printf("j=%d dp[%d]=%d\n",j, i, dp[i]);
         }
-        printf("%d\n", dp[i+1]);
+        //printf("%d\n", dp[i]);
     }
+    if (dp[N] >= 1000000) dp[N] = -1;
     printf("%d\n", dp[N]);
     return 0;
 }
