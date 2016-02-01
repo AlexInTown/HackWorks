@@ -90,7 +90,7 @@ int unifind(int a, int b){
         b = fb;
         fb = arr[b];
     }
-    printf("%d %d %d %d\n", a, b, fa, fb);
+    //printf("%d %d %d %d\n", a, b, fa, fb);
     if(a==b) return -1;
     if(fb > fa){ // a的秩更大
         arr[a] += arr[b];
@@ -104,9 +104,9 @@ int unifind(int a, int b){
 
 int kruskal(){
     //sort by edge
-    printf("Before sort.\n");
+    //printf("Before sort.\n");
     sort(edges, edges+R);
-    printf("After sort.\n");
+    //printf("After sort.\n");
     //add edge and test circle
     int i;
     int res = 0;
@@ -139,6 +139,7 @@ int main(){
         for(i = 0; i < R; ++i){
             scanf("%d%d%d", &edges[i].u, &edges[i].v, &edges[i].d);
             edges[i].v += N;
+            edges[i].d = 10000 - edges[i].d;
         }
         memset(arr, -1, sizeof(int)*(N+M));
         printf("%d\n", kruskal());
