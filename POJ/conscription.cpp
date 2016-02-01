@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <vector>
 using namespace std;
-const int INF = 1000000;
+const int INF = 10000000;
 int T;
 int N, M, R;
 
@@ -70,15 +70,12 @@ int prim(){
     return res;
 }
 */
-
-
 struct EdgeK{
     int u, v, d;
     bool operator<(const EdgeK & b) const {
         return d < b.d;
     }
 };
-
 EdgeK edges[50000];
 int arr[20000];
 
@@ -134,7 +131,6 @@ int main(){
         scanf("%d%d%d", &N, &M, &R);
         /*for(i = 0; i < N+M; ++i)
             g[i].clear();
-        
         for(i = 0; i < R; ++i){
             scanf("%d%d%d", &x, &y, &d);
             add_edge(x,y,d);
@@ -144,7 +140,7 @@ int main(){
             scanf("%d%d%d", &edges[i].u, &edges[i].v, &edges[i].d);
             edges[i].v += N;
         }
-        memset(arr, -1, sizeof(int)* (N+M));
+        memset(arr, -1, sizeof(int)*(N+M));
         printf("%d\n", kruskal());
     }
 }
