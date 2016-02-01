@@ -49,7 +49,7 @@ int main(){
 
 	int i,j;
 	pair<int, int> edge;
-	while(n !=0 && m != 0){
+	while(n !=0 || m != 0){
 	for(i = 0; i < n; ++i){
 		g[i].clear();
 	}
@@ -65,6 +65,7 @@ int main(){
 		edge.first = u; edge.second = v;
 		edges[edge] = c;
 	}
+    s = 0;
 	dijkstra(s, n);
 	int cost = 0;
 	for(i = 0; i < n; ++i){
