@@ -1,8 +1,9 @@
 #include <iostream>
 #include <algorithm>
 #include <memory.h>
+#include <map>
 using namespace std;
-int idx[100011];
+map<int,int> idx;
 int arr[100011];
 int ord[100011];
 int n;
@@ -11,10 +12,10 @@ int main(){
     int i;
     for(i = 0; i < n; ++i){
         cin>>arr[i];
+	arr[i]--;
         ord[i] = arr[i];
     }
     sort(ord, ord+n);
-    memset(idx, -1, sizeof(int)*n);
     idx[ord[0]] = 0;
     for(i = 1; i < n; ++i){
         if(ord[i] != ord[i-1])
@@ -27,17 +28,15 @@ int main(){
     }
     int res = 0, tmp,j;
     int a = -1, b= -1;
-    for(i = 0; i < n; ++i){
-        if(ord[i] != -1 && i > b){
-           a = i; b = i; res++;
-        }
-        j = i;
-        while(j!=-1 && ord[j] != j && ord[j] != -1){
-            tmp = ord[j];
-            ord[j] = -1;
-            j = tmp;
-            if(j > b) b = j;
-        }
+    for(i = 0,j = -1; i < n; ++i){
+    	if(ord[i] > b){
+	    b = ord[i];
+	}
+	if(b - a == i-j){
+	    res ++;
+	    a = b;
+	    j = i;
+	}
     }
     cout<<res<<endl;
     return 0;
